@@ -44,8 +44,8 @@ function App() {
       {/* Top Navbar */}
       <header className="app-header">
         <a href="#/" className="logo-container">
-          <div className="logo-icon-wrapper" style={{ background: '#ffffff', padding: '0.2rem', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <img src="/logo.png" alt="Clean Code Logo" style={{ width: '28px', height: '28px', objectFit: 'contain' }} />
+          <div className="logo-icon-wrapper" style={{ background: '#ffffff', padding: '0.25rem', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '10px', boxShadow: '0 2px 8px rgba(0,0,0,0.08)' }}>
+            <img src="/logo.png" alt="Clean Code Logo" style={{ width: '42px', height: '42px', objectFit: 'contain' }} />
           </div>
           <span className="logo-text">Clean Code</span>
           <span style={{ fontSize: '1.1rem', fontWeight: 800, color: 'var(--primary)', marginRight: '0.25rem' }}>كلين كود</span>

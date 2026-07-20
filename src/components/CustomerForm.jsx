@@ -240,7 +240,7 @@ export default function CustomerForm() {
         {/* STEP 0: Welcome Hero Screen */}
         {step === 0 && (
           <div className="welcome-hero animate-fade">
-            <div className="welcome-illustration" style={{ background: '#ffffff', padding: '0.8rem', width: '100px', height: '100px' }}>
+            <div className="welcome-illustration" style={{ background: '#ffffff', padding: '1rem', width: '150px', height: '150px', borderRadius: '24px', boxShadow: '0 4px 20px rgba(0,0,0,0.1)' }}>
               <img src="/logo.png" alt="Clean Code Logo" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
             </div>
             <div className="wizard-header">
