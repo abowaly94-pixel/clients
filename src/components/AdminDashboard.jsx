@@ -162,43 +162,43 @@ export default function AdminDashboard() {
 
         const timer = setTimeout(() => {
           if (!mapInstanceRef.current) {
-            const streets = L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
-              attribution: '&copy; OpenStreetMap &copy; CARTO',
-              subdomains: 'abcd',
+            const googleHybrid = L.tileLayer('https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}', {
+              attribution: '&copy; Google Maps',
               maxZoom: 20,
             });
 
-            const satellite = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
-              attribution: '&copy; Esri World Imagery',
-              maxZoom: 19,
+            const googleStreets = L.tileLayer('https://mt1.google.com/vt/lyrs=m&x={x}&y={y}&z={z}', {
+              attribution: '&copy; Google Maps',
+              maxZoom: 20,
             });
 
             const map = L.map(mapContainerRef.current, {
               center: [latitude, longitude],
               zoom: 16,
-              layers: [streets],
+              layers: [googleHybrid],
               zoomControl: true,
             });
 
             L.control.layers({
-              "🗺️ شوارع وعناوين": streets,
-              "🛰️ قمر صناعي": satellite,
+              "🛰️ قمر صناعي (Google Hybrid)": googleHybrid,
+              "🗺️ شوارع وعناوين (Google Streets)": googleStreets,
             }, null, { position: 'topleft' }).addTo(map);
 
             const customIcon = L.divIcon({
               className: 'custom-map-pin-icon',
               html: `
                 <div class="pin-marker-wrapper">
+                  <div class="pin-badge">موقع العميل</div>
                   <div class="pin-marker-pulse"></div>
                   <div class="pin-marker-icon">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="#ffffff" stroke="none">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="#ffffff" stroke="none">
                       <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
                     </svg>
                   </div>
                 </div>
               `,
-              iconSize: [40, 40],
-              iconAnchor: [20, 38],
+              iconSize: [80, 75],
+              iconAnchor: [40, 68],
             });
 
             const marker = L.marker([latitude, longitude], { icon: customIcon }).addTo(map);
