@@ -164,20 +164,38 @@ export default function AdminDashboard() {
           if (!mapInstanceRef.current) {
             const map = L.map(mapContainerRef.current, {
               center: [latitude, longitude],
-              zoom: 15,
+              zoom: 16,
               zoomControl: true,
             });
 
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-              attribution: '© OpenStreetMap contributors',
+            L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+              attribution: '&copy; OpenStreetMap &copy; CARTO',
+              subdomains: 'abcd',
+              maxZoom: 20,
             }).addTo(map);
 
-            const marker = L.marker([latitude, longitude]).addTo(map);
+            const customIcon = L.divIcon({
+              className: 'custom-map-pin-icon',
+              html: `
+                <div class="pin-marker-wrapper">
+                  <div class="pin-marker-pulse"></div>
+                  <div class="pin-marker-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="#ffffff" stroke="none">
+                      <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
+                    </svg>
+                  </div>
+                </div>
+              `,
+              iconSize: [40, 40],
+              iconAnchor: [20, 38],
+            });
+
+            const marker = L.marker([latitude, longitude], { icon: customIcon }).addTo(map);
 
             mapInstanceRef.current = map;
             markerInstanceRef.current = marker;
           } else {
-            mapInstanceRef.current.setView([latitude, longitude], 15);
+            mapInstanceRef.current.setView([latitude, longitude], 16);
             markerInstanceRef.current.setLatLng([latitude, longitude]);
           }
         }, 100);

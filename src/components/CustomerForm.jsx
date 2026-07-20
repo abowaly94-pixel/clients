@@ -17,11 +17,20 @@ import {
 import L from 'leaflet';
 
 // Fix Leaflet marker icon issue in production builds
-delete L.Icon.Default.prototype._getIconUrl;
-L.Icon.Default.mergeOptions({
-  iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png',
-  iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
-  shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
+const createCustomPinIcon = () => L.divIcon({
+  className: 'custom-map-pin-icon',
+  html: `
+    <div class="pin-marker-wrapper">
+      <div class="pin-marker-pulse"></div>
+      <div class="pin-marker-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="#ffffff" stroke="none">
+          <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
+        </svg>
+      </div>
+    </div>
+  `,
+  iconSize: [40, 40],
+  iconAnchor: [20, 38],
 });
 
 const LAUNDRY_CATEGORIES = [
@@ -60,20 +69,23 @@ export default function CustomerForm() {
       // Small timeout to allow container render in DOM before Leaflet binds
       const timer = setTimeout(() => {
         if (!mapInstanceRef.current) {
-          // Create map
+          // Create map with HD Voyager Tiles
           const map = L.map(mapContainerRef.current, {
             center: [coordinates.lat, coordinates.lng],
-            zoom: 15,
+            zoom: 16,
             zoomControl: true,
           });
 
-          L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '© OpenStreetMap contributors',
+          L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+            attribution: '&copy; OpenStreetMap &copy; CARTO',
+            subdomains: 'abcd',
+            maxZoom: 20,
           }).addTo(map);
 
-          // Add draggable marker
+          // Add draggable custom glowing marker
           const marker = L.marker([coordinates.lat, coordinates.lng], {
             draggable: true,
+            icon: createCustomPinIcon(),
           }).addTo(map);
 
           marker.on('dragend', () => {
@@ -85,7 +97,7 @@ export default function CustomerForm() {
           markerInstanceRef.current = marker;
         } else {
           // If map already exists, update center and marker
-          mapInstanceRef.current.setView([coordinates.lat, coordinates.lng], 15);
+          mapInstanceRef.current.setView([coordinates.lat, coordinates.lng], 16);
           markerInstanceRef.current.setLatLng([coordinates.lat, coordinates.lng]);
         }
       }, 100);
