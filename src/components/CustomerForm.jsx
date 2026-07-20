@@ -602,7 +602,7 @@ export default function CustomerForm() {
             <a 
               className="btn-wizard btn-wizard-primary"
               href={`https://wa.me/201040400855?text=${encodeURIComponent(
-                `السلام عليكم ورحمة الله وبركاته 🌸\nلقد قمت بتقديم طلب غسيل جديد من موقع Clean Code ✨\n\n👤 *الاسم*: ${customerName}\n📞 *الهاتف*: ${phone}\n📦 *إجمالي المغسولات*: ${getTotalItems()} قطعة\n📍 *موقعي الجغرافي على الخريطة*:\nhttps://www.google.com/maps/search/?api=1&query=${coordinates.lat},${coordinates.lng}\n\nفي انتظار استلام المندوب للطلب، شكراً لكم!`
+                `السلام عليكم ورحمة الله وبركاته\nلقد قمت بتقديم طلب غسيل جديد من موقع Clean Code\n\nالاسم: ${customerName}\nالهاتف: ${phone}\nإجمالي المغسولات: ${getTotalItems()} قطعة\nرابط موقعي الجغرافي على الخريطة:\nhttps://www.google.com/maps/search/?api=1&query=${coordinates.lat},${coordinates.lng}\n\nفي انتظار استلام المندوب للطلب، شكراً لكم.`
               )}`}
               target="_blank"
               rel="noopener noreferrer"
