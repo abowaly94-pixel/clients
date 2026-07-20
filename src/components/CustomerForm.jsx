@@ -601,7 +601,7 @@ export default function CustomerForm() {
 
             <a 
               className="btn-wizard btn-wizard-primary"
-              href={`https://wa.me/20123456789?text=${encodeURIComponent(
+              href={`https://wa.me/201040400855?text=${encodeURIComponent(
                 `مرحباً، لقد أرسلت طلباً جديداً لغسيل الملابس باسم: ${customerName}، وإجمالي قطع الغسيل: ${getTotalItems()} قطع.\nرابط موقعي الجغرافي: https://www.google.com/maps/search/?api=1&query=${coordinates.lat},${coordinates.lng}`
               )}`}
               target="_blank"
