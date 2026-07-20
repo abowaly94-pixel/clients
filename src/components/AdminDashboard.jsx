@@ -30,11 +30,11 @@ const STATUS_LABELS = {
 };
 
 const LAUNDRY_ITEM_LABELS = {
-  blankets: { name: 'بطاطين / لحاف', icon: '🛏️' },
-  suits: { name: 'بدل / فساتين', icon: '👔' },
-  clothes: { name: 'قطع ملابس عادي', icon: '👕' },
   carpets: { name: 'سجاد / موكيت', icon: '🧹' },
-  others: { name: 'أخرى (ستائر / إلخ)', icon: '🧺' },
+  blankets: { name: 'بطاطين', icon: '🛏️' },
+  quilts: { name: 'لحاف', icon: '🛋️' },
+  hafiza: { name: 'حافظة سجاد', icon: '🧺' },
+  chemical_wash: { name: 'غسيل كيميكال بموقع العميل', icon: '✨' },
 };
 
 export default function AdminDashboard() {
@@ -45,6 +45,7 @@ export default function AdminDashboard() {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedOrder, setSelectedOrder] = useState(null);
+  const [priceInput, setPriceInput] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('all'); // all, pending, picked_up, in_progress, ready, delivered
   const [soundEnabled, setSoundEnabled] = useState(true);
@@ -152,36 +153,57 @@ export default function AdminDashboard() {
     };
   }, [isAuthenticated]);
 
-  // Update Detail Map when selected order changes
+  // Update Detail Map and price input when selected order changes
   useEffect(() => {
-    if (selectedOrder && mapContainerRef.current) {
-      const { latitude, longitude } = selectedOrder;
+    if (selectedOrder) {
+      setPriceInput(selectedOrder.price !== undefined && selectedOrder.price !== null ? selectedOrder.price : '');
 
-      const timer = setTimeout(() => {
-        if (!mapInstanceRef.current) {
-          const map = L.map(mapContainerRef.current, {
-            center: [latitude, longitude],
-            zoom: 15,
-            zoomControl: true,
-          });
+      if (mapContainerRef.current) {
+        const { latitude, longitude } = selectedOrder;
 
-          L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '© OpenStreetMap contributors',
-          }).addTo(map);
+        const timer = setTimeout(() => {
+          if (!mapInstanceRef.current) {
+            const map = L.map(mapContainerRef.current, {
+              center: [latitude, longitude],
+              zoom: 15,
+              zoomControl: true,
+            });
 
-          const marker = L.marker([latitude, longitude]).addTo(map);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+              attribution: '© OpenStreetMap contributors',
+            }).addTo(map);
 
-          mapInstanceRef.current = map;
-          markerInstanceRef.current = marker;
-        } else {
-          mapInstanceRef.current.setView([latitude, longitude], 15);
-          markerInstanceRef.current.setLatLng([latitude, longitude]);
-        }
-      }, 100);
+            const marker = L.marker([latitude, longitude]).addTo(map);
 
-      return () => clearTimeout(timer);
+            mapInstanceRef.current = map;
+            markerInstanceRef.current = marker;
+          } else {
+            mapInstanceRef.current.setView([latitude, longitude], 15);
+            markerInstanceRef.current.setLatLng([latitude, longitude]);
+          }
+        }, 100);
+
+        return () => clearTimeout(timer);
+      }
     }
   }, [selectedOrder]);
+
+  // Update Order Price
+  const handleUpdatePrice = async (orderId, newPrice) => {
+    try {
+      const parsedPrice = newPrice === '' ? null : parseFloat(newPrice);
+      const { data, error } = await supabase
+        .from('orders')
+        .update({ price: parsedPrice })
+        .eq('id', orderId)
+        .select();
+
+      if (error) throw error;
+      alert('تم حفظ وتحديث سعر الطلب بنجاح!');
+    } catch (err) {
+      alert('فشل حفظ السعر: ' + err.message);
+    }
+  };
 
   // Handle Passcode Input Change
   const handlePasscodeChange = (index, value) => {
@@ -279,11 +301,12 @@ export default function AdminDashboard() {
   const getWhatsAppLink = (order, type) => {
     let msg = '';
     const totalPcs = order.items ? Object.values(order.items).reduce((a, b) => a + b, 0) : 0;
-    
+    const priceText = order.price ? `\nالتكلفة الإجمالية: ${order.price} جنيه` : '';
+
     if (type === 'pickup') {
-      msg = `مرحباً ${order.customer_name}، نحن شركة لاندري جو. مندوبنا في الطريق إليك الآن لاستلام الملابس (إجمالي: ${totalPcs} قطع). يرجى التجهيز.`;
+      msg = `مرحباً ${order.customer_name}، نحن شركة Clean Code. مندوبنا في الطريق إليك الآن لاستلام المغسولات (إجمالي: ${totalPcs} قطع).${priceText}\nيرجى التجهيز.`;
     } else if (type === 'ready') {
-      msg = `مرحباً ${order.customer_name}، يسعدنا إخبارك بأن ملابسك جاهزة وتم غسلها وكيها بالكامل. مندوب التوصيل سيتصل بك قريباً للتسليم. شكراً لاختيارك لاندري جو!`;
+      msg = `مرحباً ${order.customer_name}، يسعدنا إخبارك بأن طلبك جاهز ونظيف تماماً. مندوب التوصيل سيتصل بك قريباً للتسليم.${priceText}\nشكراً لاختيارك Clean Code!`;
     }
     
     // Format customer phone (strip lead 0 and add country code if needed, assuming Egypt +20 default)
@@ -488,7 +511,14 @@ export default function AdminDashboard() {
                           return null;
                         })}
                       </div>
-                      <span style={{ fontWeight: 800 }}>إجمالي: {totalPcs} قطع</span>
+                      <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                        {order.price && (
+                          <span style={{ color: 'var(--success)', fontWeight: 800, fontSize: '0.85rem' }}>
+                            💰 {order.price} ج
+                          </span>
+                        )}
+                        <span style={{ fontWeight: 800 }}>إجمالي: {totalPcs} قطع</span>
+                      </div>
                     </div>
                   </div>
                 );
@@ -539,6 +569,27 @@ export default function AdminDashboard() {
                       <span className="detail-item-qty">{val}</span>
                     </div>
                   ))}
+                </div>
+              </div>
+
+              {/* Order Price Input Panel */}
+              <div className="detail-status-update" style={{ backgroundColor: 'var(--primary-light)' }}>
+                <h4 className="detail-section-title" style={{ borderBottom: 'none', marginBottom: 0, color: 'var(--primary)' }}>تحديد / تعديل إجمالي سعر الطلب (بالجنيه)</h4>
+                <div style={{ display: 'flex', gap: '0.5rem' }}>
+                  <input 
+                    type="number" 
+                    className="form-input" 
+                    placeholder="أدخل السعر الإجمالي بالجنيه (مثال: 350)"
+                    value={priceInput}
+                    onChange={(e) => setPriceInput(e.target.value)}
+                    style={{ background: 'var(--bg-card)', paddingRight: '1rem' }}
+                  />
+                  <button 
+                    className="btn-status-save"
+                    onClick={() => handleUpdatePrice(selectedOrder.id, priceInput)}
+                  >
+                    حفظ السعر
+                  </button>
                 </div>
               </div>
 

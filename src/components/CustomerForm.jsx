@@ -25,11 +25,11 @@ L.Icon.Default.mergeOptions({
 });
 
 const LAUNDRY_CATEGORIES = [
-  { id: 'blankets', label: 'بطاطين / لحاف', labelEn: 'Blankets / Quilt', icon: '🛏️' },
-  { id: 'suits', label: 'بدل / فساتين', labelEn: 'Suits / Dresses', icon: '👔' },
-  { id: 'clothes', label: 'قطع ملابس عادي', labelEn: 'Normal Clothes', icon: '👕' },
-  { id: 'carpets', label: 'سجاد / موكيت', labelEn: 'Carpets / Rugs', icon: '🧹' },
-  { id: 'others', label: 'أخرى (ستائر / إلخ)', labelEn: 'Others', icon: '🧺' },
+  { id: 'carpets', label: 'سجاد / موكيت', icon: '🧹' },
+  { id: 'blankets', label: 'بطاطين', icon: '🛏️' },
+  { id: 'quilts', label: 'لحاف', icon: '🛋️' },
+  { id: 'hafiza', label: 'حافظة سجاد', icon: '🧺' },
+  { id: 'chemical_wash', label: 'غسيل كيميكال بموقع العميل', icon: '✨' },
 ];
 
 export default function CustomerForm() {
@@ -37,12 +37,14 @@ export default function CustomerForm() {
   const [customerName, setCustomerName] = useState('');
   const [phone, setPhone] = useState('');
   const [items, setItems] = useState({
-    blankets: 0,
-    suits: 0,
-    clothes: 0,
     carpets: 0,
-    others: 0,
+    blankets: 0,
+    quilts: 0,
+    hafiza: 0,
+    chemical_wash: 0,
   });
+  const [chemicalDate, setChemicalDate] = useState('');
+  const [chemicalTime, setChemicalTime] = useState('');
   const [addressDetails, setAddressDetails] = useState('');
   const [coordinates, setCoordinates] = useState({ lat: 30.0444, lng: 31.2357 }); // Default Cairo
   const [gpsStatus, setGpsStatus] = useState('idle'); // idle, fetching, success, error
@@ -183,13 +185,18 @@ export default function CustomerForm() {
     setErrorMsg('');
 
     try {
+      let finalAddress = addressDetails.trim();
+      if (items.chemical_wash > 0 && (chemicalDate || chemicalTime)) {
+        finalAddress += `\n✨ [ميعاد غسيل الكيميكال: ${chemicalDate || 'غير محدد'} ${chemicalTime || ''}]`;
+      }
+
       const orderData = {
         customer_name: customerName.trim(),
         phone: phone.trim(),
         items: items,
         latitude: coordinates.lat,
         longitude: coordinates.lng,
-        address_details: addressDetails.trim(),
+        address_details: finalAddress,
         status: 'pending'
       };
 
@@ -363,6 +370,45 @@ export default function CustomerForm() {
                   </div>
                 ))}
               </div>
+
+              {items.chemical_wash > 0 && (
+                <div style={{
+                  background: 'var(--primary-light)',
+                  padding: '1rem',
+                  borderRadius: 'var(--radius-sm)',
+                  border: '1px solid var(--primary)',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '0.75rem',
+                  textAlign: 'right'
+                }}>
+                  <div style={{ fontWeight: 800, color: 'var(--primary)', display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.95rem' }}>
+                    ✨ حدد ميعاد غسيل الكيميكال في مكانك:
+                  </div>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
+                    <div className="form-group">
+                      <label style={{ fontSize: '0.85rem' }}>التاريخ المطلوب</label>
+                      <input 
+                        type="date" 
+                        className="form-input" 
+                        value={chemicalDate} 
+                        onChange={(e) => setChemicalDate(e.target.value)} 
+                        style={{ paddingRight: '1rem' }}
+                      />
+                    </div>
+                    <div className="form-group">
+                      <label style={{ fontSize: '0.85rem' }}>الوقت / الموعد</label>
+                      <input 
+                        type="time" 
+                        className="form-input" 
+                        value={chemicalTime} 
+                        onChange={(e) => setChemicalTime(e.target.value)} 
+                        style={{ paddingRight: '1rem' }}
+                      />
+                    </div>
+                  </div>
+                </div>
+              )}
 
               <div style={{ 
                 background: 'var(--primary-light)', 
