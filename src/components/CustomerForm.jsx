@@ -27,8 +27,7 @@ L.Icon.Default.mergeOptions({
 const LAUNDRY_CATEGORIES = [
   { id: 'carpets', label: 'سجاد / موكيت', icon: '🧹' },
   { id: 'blankets', label: 'بطاطين', icon: '🛏️' },
-  { id: 'quilts', label: 'لحاف', icon: '🛋️' },
-  { id: 'hafiza', label: 'حافظة سجاد', icon: '🧺' },
+  { id: 'quilts', label: 'حافظ لحاف', icon: '🛋️' },
   { id: 'chemical_wash', label: 'غسيل كيميكال بموقع العميل', icon: '✨' },
 ];
 
@@ -40,7 +39,6 @@ export default function CustomerForm() {
     carpets: 0,
     blankets: 0,
     quilts: 0,
-    hafiza: 0,
     chemical_wash: 0,
   });
   const [chemicalDate, setChemicalDate] = useState('');

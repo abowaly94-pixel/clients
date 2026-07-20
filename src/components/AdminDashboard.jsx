@@ -32,8 +32,7 @@ const STATUS_LABELS = {
 const LAUNDRY_ITEM_LABELS = {
   carpets: { name: 'سجاد / موكيت', icon: '🧹' },
   blankets: { name: 'بطاطين', icon: '🛏️' },
-  quilts: { name: 'لحاف', icon: '🛋️' },
-  hafiza: { name: 'حافظة سجاد', icon: '🧺' },
+  quilts: { name: 'حافظ لحاف', icon: '🛋️' },
   chemical_wash: { name: 'غسيل كيميكال بموقع العميل', icon: '✨' },
 };
 
