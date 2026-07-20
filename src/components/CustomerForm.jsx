@@ -53,7 +53,7 @@ export default function CustomerForm() {
   const [chemicalDate, setChemicalDate] = useState('');
   const [chemicalTime, setChemicalTime] = useState('');
   const [addressDetails, setAddressDetails] = useState('');
-  const [coordinates, setCoordinates] = useState({ lat: 30.0444, lng: 31.2357 }); // Default Cairo
+  const [coordinates, setCoordinates] = useState({ lat: 27.2579, lng: 33.8116 }); // Default Hurghada (الغردقة)
   const [gpsStatus, setGpsStatus] = useState('idle'); // idle, fetching, success, error
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
@@ -69,18 +69,36 @@ export default function CustomerForm() {
       // Small timeout to allow container render in DOM before Leaflet binds
       const timer = setTimeout(() => {
         if (!mapInstanceRef.current) {
-          // Create map with HD Voyager Tiles
-          const map = L.map(mapContainerRef.current, {
-            center: [coordinates.lat, coordinates.lng],
-            zoom: 16,
-            zoomControl: true,
-          });
-
-          L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+          // Map Tile Layers
+          const streets = L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
             attribution: '&copy; OpenStreetMap &copy; CARTO',
             subdomains: 'abcd',
             maxZoom: 20,
-          }).addTo(map);
+          });
+
+          const satellite = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+            attribution: '&copy; Esri World Imagery',
+            maxZoom: 19,
+          });
+
+          const openStreetMap = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; OpenStreetMap contributors',
+          });
+
+          // Create map focused on Hurghada
+          const map = L.map(mapContainerRef.current, {
+            center: [coordinates.lat, coordinates.lng],
+            zoom: 14,
+            layers: [streets],
+            zoomControl: true,
+          });
+
+          // Add Layer Selector Control
+          L.control.layers({
+            "🗺️ شوارع وعناوين": streets,
+            "🛰️ قمر صناعي": satellite,
+            "📍 خريطة عادية": openStreetMap,
+          }, null, { position: 'topleft' }).addTo(map);
 
           // Add draggable custom glowing marker
           const marker = L.marker([coordinates.lat, coordinates.lng], {
@@ -97,7 +115,7 @@ export default function CustomerForm() {
           markerInstanceRef.current = marker;
         } else {
           // If map already exists, update center and marker
-          mapInstanceRef.current.setView([coordinates.lat, coordinates.lng], 16);
+          mapInstanceRef.current.setView([coordinates.lat, coordinates.lng], 14);
           markerInstanceRef.current.setLatLng([coordinates.lat, coordinates.lng]);
         }
       }, 100);

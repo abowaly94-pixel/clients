@@ -162,17 +162,28 @@ export default function AdminDashboard() {
 
         const timer = setTimeout(() => {
           if (!mapInstanceRef.current) {
-            const map = L.map(mapContainerRef.current, {
-              center: [latitude, longitude],
-              zoom: 16,
-              zoomControl: true,
-            });
-
-            L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+            const streets = L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
               attribution: '&copy; OpenStreetMap &copy; CARTO',
               subdomains: 'abcd',
               maxZoom: 20,
-            }).addTo(map);
+            });
+
+            const satellite = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+              attribution: '&copy; Esri World Imagery',
+              maxZoom: 19,
+            });
+
+            const map = L.map(mapContainerRef.current, {
+              center: [latitude, longitude],
+              zoom: 16,
+              layers: [streets],
+              zoomControl: true,
+            });
+
+            L.control.layers({
+              "🗺️ شوارع وعناوين": streets,
+              "🛰️ قمر صناعي": satellite,
+            }, null, { position: 'topleft' }).addTo(map);
 
             const customIcon = L.divIcon({
               className: 'custom-map-pin-icon',
