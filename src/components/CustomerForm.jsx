@@ -240,11 +240,11 @@ export default function CustomerForm() {
         {/* STEP 0: Welcome Hero Screen */}
         {step === 0 && (
           <div className="welcome-hero animate-fade">
-            <div className="welcome-illustration">
-              <ShoppingBag size={56} />
+            <div className="welcome-illustration" style={{ background: '#ffffff', padding: '0.8rem', width: '100px', height: '100px' }}>
+              <img src="/logo.png" alt="Clean Code Logo" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
             </div>
             <div className="wizard-header">
-              <h1>لاندري جو | LaundriGo</h1>
+              <h1>Clean Code | كلين كود</h1>
               <p>أسرع خدمة لطلب جمع الغسيل وتحديد موقعك بدقة</p>
             </div>
             

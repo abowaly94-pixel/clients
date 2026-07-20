@@ -44,11 +44,11 @@ function App() {
       {/* Top Navbar */}
       <header className="app-header">
         <a href="#/" className="logo-container">
-          <div className="logo-icon-wrapper">
-            <ShoppingBag size={20} />
+          <div className="logo-icon-wrapper" style={{ background: '#ffffff', padding: '0.2rem', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <img src="/logo.png" alt="Clean Code Logo" style={{ width: '28px', height: '28px', objectFit: 'contain' }} />
           </div>
-          <span className="logo-text">LaundriGo</span>
-          <span style={{ fontSize: '1.1rem', fontWeight: 800, color: 'var(--primary)', marginRight: '0.25rem' }}>لاندري جو</span>
+          <span className="logo-text">Clean Code</span>
+          <span style={{ fontSize: '1.1rem', fontWeight: 800, color: 'var(--primary)', marginRight: '0.25rem' }}>كلين كود</span>
         </a>
 
         <div className="nav-links">
