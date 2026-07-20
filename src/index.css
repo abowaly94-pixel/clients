@@ -487,10 +487,30 @@ body {
   color: white;
 }
 
-.counter-value {
+.counter-value, .counter-value-input {
   font-family: var(--font-en);
   font-weight: 700;
   font-size: 1.1rem;
+}
+
+.counter-value-input {
+  width: 50px;
+  text-align: center;
+  border: none;
+  background: transparent;
+  color: var(--text-main);
+  outline: none;
+  padding: 0;
+}
+
+.counter-value-input::-webkit-outer-spin-button,
+.counter-value-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.counter-value-input[type=number] {
+  -moz-appearance: textfield;
 }
 
 /* Map Selection screen */

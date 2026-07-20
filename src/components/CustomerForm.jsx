@@ -140,6 +140,14 @@ export default function CustomerForm() {
     }));
   };
 
+  const handleItemInputChange = (catId, val) => {
+    const parsed = parseInt(val, 10);
+    setItems(prev => ({
+      ...prev,
+      [catId]: isNaN(parsed) || parsed < 0 ? 0 : parsed
+    }));
+  };
+
   const getTotalItems = () => {
     return Object.values(items).reduce((a, b) => a + b, 0);
   };
@@ -356,7 +364,14 @@ export default function CustomerForm() {
                       >
                         <Minus size={16} />
                       </button>
-                      <span className="counter-value">{items[cat.id]}</span>
+                      <input 
+                        type="number" 
+                        min="0"
+                        className="counter-value-input" 
+                        value={items[cat.id] === 0 ? '' : items[cat.id]}
+                        placeholder="0"
+                        onChange={(e) => handleItemInputChange(cat.id, e.target.value)}
+                      />
                       <button 
                         type="button" 
                         className="btn-counter" 
