@@ -47,25 +47,6 @@ function App() {
       ) : (
         <CustomerForm />
       )}
-
-      {/* Sleek Floating Navigation Pill */}
-      <nav className="floating-nav-bar" aria-label="التنقل الرئيسي">
-        <a 
-          href="#/" 
-          className={`floating-nav-item ${currentPath === '#/' || currentPath === '' ? 'active' : ''}`}
-        >
-          <Sparkles size={16} />
-          <span>طلب جديد</span>
-        </a>
-        <div className="floating-nav-divider"></div>
-        <a 
-          href="#/admin" 
-          className={`floating-nav-item ${currentPath.startsWith('#/admin') ? 'active' : ''}`}
-        >
-          <ShieldAlert size={16} />
-          <span>لوحة التحكم</span>
-        </a>
-      </nav>
     </div>
   );
 }
