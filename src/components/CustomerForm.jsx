@@ -180,6 +180,18 @@ export default function CustomerForm() {
     }));
   };
 
+  const formatArabicTime = (time24) => {
+    if (!time24) return '';
+    const parts = time24.split(':');
+    let h = parseInt(parts[0], 10);
+    if (isNaN(h)) return time24;
+    const m = parts[1] || '00';
+    const period = h >= 12 ? 'مساءً' : 'صباحاً';
+    h = h % 12;
+    if (h === 0) h = 12;
+    return `${h}:${m} ${period}`;
+  };
+
   const getTotalItems = () => {
     return Object.values(items).reduce((a, b) => a + b, 0);
   };
@@ -225,7 +237,7 @@ export default function CustomerForm() {
     try {
       let finalAddress = addressDetails.trim();
       if (items.chemical_wash > 0 && (chemicalDate || chemicalTime)) {
-        finalAddress += `\n✨ [ميعاد غسيل الكيميكال: ${chemicalDate || 'غير محدد'} ${chemicalTime || ''}]`;
+        finalAddress += `\n✨ [ميعاد غسيل الكيميكال: ${chemicalDate || 'غير محدد'} ${formatArabicTime(chemicalTime)}]`;
       }
 
       const orderData = {
@@ -600,7 +612,7 @@ export default function CustomerForm() {
               {items.chemical_wash > 0 && (chemicalDate || chemicalTime) && (
                 <div className="summary-row">
                   <span className="summary-label">✨ ميعاد غسيل الكيميكال:</span>
-                  <span className="summary-val">{chemicalDate || ''} {chemicalTime || ''}</span>
+                  <span className="summary-val">{chemicalDate || ''} {formatArabicTime(chemicalTime)}</span>
                 </div>
               )}
               {addressDetails && (
@@ -614,7 +626,7 @@ export default function CustomerForm() {
             <a 
               className="btn-wizard btn-wizard-primary"
               href={`https://wa.me/201040400855?text=${encodeURIComponent(
-                `السلام عليكم ورحمة الله وبركاته\nلقد قمت بتقديم طلب غسيل جديد من موقع Clean Code\n\nالاسم: ${customerName}\nالهاتف: ${phone}\nإجمالي المغسولات: ${getTotalItems()} قطعة\n\nتفاصيل المغسولات:\n${LAUNDRY_CATEGORIES.filter(c => items[c.id] > 0).map(c => `- ${c.label}: ${items[c.id]} قطعة`).join('\n')}${items.chemical_wash > 0 && (chemicalDate || chemicalTime) ? `\n\n✨ ميعاد غسيل الكيميكال المطلوب: ${chemicalDate || 'غير محدد'} ${chemicalTime || ''}` : ''}${addressDetails.trim() ? `\n\nالعنوان التفصيلي:\n${addressDetails.trim()}` : ''}\n\nرابط موقعي الجغرافي على الخريطة:\nhttps://www.google.com/maps/search/?api=1&query=${coordinates.lat},${coordinates.lng}\n\nفي انتظار استلام المندوب للطلب، شكراً لكم.`
+                `السلام عليكم ورحمة الله وبركاته\nلقد قمت بتقديم طلب غسيل جديد من موقع Clean Code\n\nالاسم: ${customerName}\nالهاتف: ${phone}\nإجمالي المغسولات: ${getTotalItems()} قطعة\n\nتفاصيل المغسولات:\n${LAUNDRY_CATEGORIES.filter(c => items[c.id] > 0).map(c => `- ${c.label}: ${items[c.id]} قطعة`).join('\n')}${items.chemical_wash > 0 && (chemicalDate || chemicalTime) ? `\n\n✨ ميعاد غسيل الكيميكال المطلوب: ${chemicalDate || 'غير محدد'} الساعة (${formatArabicTime(chemicalTime)})` : ''}${addressDetails.trim() ? `\n\nالعنوان التفصيلي:\n${addressDetails.trim()}` : ''}\n\nرابط موقعي الجغرافي على الخريطة:\nhttps://www.google.com/maps/search/?api=1&query=${coordinates.lat},${coordinates.lng}\n\nفي انتظار استلام المندوب للطلب، شكراً لكم.`
               )}`}
               target="_blank"
               rel="noopener noreferrer"
