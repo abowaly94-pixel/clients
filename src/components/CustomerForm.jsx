@@ -626,7 +626,7 @@ export default function CustomerForm() {
             <a 
               className="btn-wizard btn-wizard-primary"
               href={`https://wa.me/201040400855?text=${encodeURIComponent(
-                `السلام عليكم ورحمة الله وبركاته\nلقد قمت بتقديم طلب غسيل جديد من موقع Clean Code\n\nالاسم: ${customerName}\nالهاتف: ${phone}\nإجمالي المغسولات: ${getTotalItems()} قطعة\n\nتفاصيل المغسولات:\n${LAUNDRY_CATEGORIES.filter(c => items[c.id] > 0).map(c => `- ${c.label}: ${items[c.id]} قطعة`).join('\n')}${items.chemical_wash > 0 && (chemicalDate || chemicalTime) ? `\n\n✨ ميعاد غسيل الكيميكال المطلوب: ${chemicalDate || 'غير محدد'} الساعة (${formatArabicTime(chemicalTime)})` : ''}${addressDetails.trim() ? `\n\nالعنوان التفصيلي:\n${addressDetails.trim()}` : ''}\n\nرابط موقعي الجغرافي على الخريطة:\nhttps://www.google.com/maps/search/?api=1&query=${coordinates.lat},${coordinates.lng}\n\nفي انتظار استلام المندوب للطلب، شكراً لكم.`
+                `السلام عليكم ورحمة الله وبركاته\nلقد قمت بتقديم طلب غسيل جديد من موقع Clean Code\n\nالاسم: ${customerName}\nالهاتف: ${phone}\nإجمالي المغسولات: ${getTotalItems()} قطعة\n\nتفاصيل المغسولات:\n${LAUNDRY_CATEGORIES.filter(c => items[c.id] > 0).map(c => `- ${c.label}: ${items[c.id]} قطعة`).join('\n')}${items.chemical_wash > 0 && (chemicalDate || chemicalTime) ? `\n\nميعاد غسيل الكيميكال المطلوب: ${chemicalDate || 'غير محدد'} الساعة (${formatArabicTime(chemicalTime)})` : ''}${addressDetails.trim() ? `\n\nالعنوان التفصيلي:\n${addressDetails.trim()}` : ''}\n\nرابط موقعي الجغرافي على الخريطة:\nhttps://www.google.com/maps/search/?api=1&query=${coordinates.lat},${coordinates.lng}\n\nفي انتظار استلام المندوب للطلب، شكراً لكم.`
               )}`}
               target="_blank"
               rel="noopener noreferrer"
