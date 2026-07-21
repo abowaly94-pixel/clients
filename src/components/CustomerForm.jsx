@@ -555,7 +555,7 @@ export default function CustomerForm() {
                     <div className="spinner"></div>
                   ) : (
                     <>
-                      تأكيد وإرسال الطلب
+                      إرسال الطلب
                       <Check size={18} />
                     </>
                   )}
