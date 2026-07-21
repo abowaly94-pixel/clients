@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import CustomerForm from './components/CustomerForm';
 import AdminDashboard from './components/AdminDashboard';
-import { ShoppingBag, ShieldAlert, AlertTriangle } from 'lucide-react';
+import { ShieldAlert, AlertTriangle, Sparkles } from 'lucide-react';
 import { isSupabaseConfigured } from './supabaseClient';
 
 function App() {
@@ -32,7 +32,7 @@ function App() {
           fontWeight: 600,
           display: 'flex',
           alignItems: 'center',
-          justify: 'center',
+          justifyContent: 'center',
           gap: '0.5rem',
           zIndex: 100
         }}>
@@ -41,38 +41,31 @@ function App() {
         </div>
       )}
 
-      {/* Top Navbar */}
-      <header className="app-header">
-        <a href="#/" className="logo-container">
-          <div className="logo-icon-wrapper" style={{ background: '#ffffff', padding: '0.25rem', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '10px', boxShadow: '0 2px 8px rgba(0,0,0,0.08)' }}>
-            <img src="/logo.png" alt="Clean Code Logo" style={{ width: '42px', height: '42px', objectFit: 'contain' }} />
-          </div>
-          <span className="logo-text">Clean Code</span>
-          <span style={{ fontSize: '1.1rem', fontWeight: 800, color: 'var(--primary)', marginRight: '0.25rem' }}>كلين كود</span>
-        </a>
-
-        <div className="nav-links">
-          <a 
-            href="#/" 
-            className={`btn-nav ${currentPath === '#/' || currentPath === '' ? 'active' : ''}`}
-          >
-            طلب غسيل جديد
-          </a>
-          <a 
-            href="#/admin" 
-            className={`btn-nav ${currentPath.startsWith('#/admin') ? 'active' : ''}`}
-          >
-            <ShieldAlert size={14} /> لوحة التحكم
-          </a>
-        </div>
-      </header>
-
-      {/* Page Routing */}
+      {/* Main Page View */}
       {currentPath.startsWith('#/admin') ? (
         <AdminDashboard />
       ) : (
         <CustomerForm />
       )}
+
+      {/* Sleek Floating Navigation Pill */}
+      <nav className="floating-nav-bar" aria-label="التنقل الرئيسي">
+        <a 
+          href="#/" 
+          className={`floating-nav-item ${currentPath === '#/' || currentPath === '' ? 'active' : ''}`}
+        >
+          <Sparkles size={16} />
+          <span>طلب جديد</span>
+        </a>
+        <div className="floating-nav-divider"></div>
+        <a 
+          href="#/admin" 
+          className={`floating-nav-item ${currentPath.startsWith('#/admin') ? 'active' : ''}`}
+        >
+          <ShieldAlert size={16} />
+          <span>لوحة التحكم</span>
+        </a>
+      </nav>
     </div>
   );
 }

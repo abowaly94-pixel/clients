@@ -15,7 +15,8 @@ import {
   RefreshCw, 
   Layers,
   ExternalLink,
-  ChevronLeft
+  ChevronLeft,
+  ChevronRight
 } from 'lucide-react';
 import L from 'leaflet';
 
@@ -48,6 +49,13 @@ export default function AdminDashboard() {
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('all'); // all, pending, picked_up, in_progress, ready, delivered
   const [soundEnabled, setSoundEnabled] = useState(true);
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth <= 768);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   const mapContainerRef = useRef(null);
   const mapInstanceRef = useRef(null);
@@ -486,234 +494,245 @@ export default function AdminDashboard() {
 
       {/* Split Workspace */}
       <div className="dashboard-workspace">
-        {/* Left Side: Orders list */}
-        <div className="orders-list-panel">
-          <div className="orders-list-header">
-            <span>الطلبات ({filteredOrders.length})</span>
-            {loading && <div className="spinner" style={{ width: 16, height: 16, borderTopColor: 'var(--primary)' }}></div>}
+        {/* Left Side: Orders list (Hide on mobile if an order is selected) */}
+        {(!isMobile || !selectedOrder) && (
+          <div className="orders-list-panel animate-fade">
+            <div className="orders-list-header">
+              <span>الطلبات ({filteredOrders.length})</span>
+              {loading && <div className="spinner" style={{ width: 16, height: 16, borderTopColor: 'var(--primary)' }}></div>}
+            </div>
+            
+            <div className="orders-scroller">
+              {filteredOrders.length === 0 ? (
+                <div className="empty-state">
+                  <Layers size={36} />
+                  <p>لا توجد طلبات تطابق معايير البحث</p>
+                </div>
+              ) : (
+                filteredOrders.map((order) => {
+                  const totalPcs = order.items ? Object.values(order.items).reduce((a, b) => a + b, 0) : 0;
+                  const isSelected = selectedOrder && selectedOrder.id === order.id;
+                  const elapsedMin = Math.round((new Date() - new Date(order.created_at)) / 60000);
+                  let timeText = '';
+                  if (elapsedMin < 60) timeText = `منذ ${elapsedMin} دقيقة`;
+                  else timeText = `منذ ${Math.round(elapsedMin/60)} ساعة`;
+
+                  return (
+                    <div 
+                      key={order.id} 
+                      className={`order-row-card ${isSelected ? 'selected' : ''}`}
+                      onClick={() => setSelectedOrder(order)}
+                    >
+                      <div className="order-row-top">
+                        <span className="order-client-name">{order.customer_name}</span>
+                        <span className={`order-badge-status ${order.status}`}>
+                          {STATUS_LABELS[order.status].label}
+                        </span>
+                      </div>
+
+                      <div className="order-row-meta">
+                        <span style={{ fontFamily: 'var(--font-en)' }}>{order.phone}</span>
+                        <span style={{ fontSize: '0.75rem' }}>{timeText}</span>
+                      </div>
+
+                      <div className="order-row-meta">
+                        <div className="order-row-items-summary">
+                          {order.items && Object.entries(order.items).map(([key, val]) => {
+                            if (val > 0) {
+                              return (
+                                <span key={key} className="mini-item-tag">
+                                  {LAUNDRY_ITEM_LABELS[key]?.icon} {val}
+                                </span>
+                              );
+                            }
+                            return null;
+                          })}
+                        </div>
+                        <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                          {order.price && (
+                            <span style={{ color: 'var(--success)', fontWeight: 800, fontSize: '0.85rem' }}>
+                              💰 {order.price} ج
+                            </span>
+                          )}
+                          <span style={{ fontWeight: 800 }}>إجمالي: {totalPcs} قطع</span>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })
+              )}
+            </div>
           </div>
-          
-          <div className="orders-scroller">
-            {filteredOrders.length === 0 ? (
-              <div className="empty-state">
-                <Layers size={36} />
-                <p>لا توجد طلبات تطابق معايير البحث</p>
-              </div>
-            ) : (
-              filteredOrders.map((order) => {
-                const totalPcs = order.items ? Object.values(order.items).reduce((a, b) => a + b, 0) : 0;
-                const isSelected = selectedOrder && selectedOrder.id === order.id;
-                const elapsedMin = Math.round((new Date() - new Date(order.created_at)) / 60000);
-                let timeText = '';
-                if (elapsedMin < 60) timeText = `منذ ${elapsedMin} دقيقة`;
-                else timeText = `منذ ${Math.round(elapsedMin/60)} ساعة`;
+        )}
 
-                return (
-                  <div 
-                    key={order.id} 
-                    className={`order-row-card ${isSelected ? 'selected' : ''}`}
-                    onClick={() => setSelectedOrder(order)}
-                  >
-                    <div className="order-row-top">
-                      <span className="order-client-name">{order.customer_name}</span>
-                      <span className={`order-badge-status ${order.status}`}>
-                        {STATUS_LABELS[order.status].label}
-                      </span>
-                    </div>
-
-                    <div className="order-row-meta">
-                      <span style={{ fontFamily: 'var(--font-en)' }}>{order.phone}</span>
-                      <span style={{ fontSize: '0.75rem' }}>{timeText}</span>
-                    </div>
-
-                    <div className="order-row-meta">
-                      <div className="order-row-items-summary">
-                        {order.items && Object.entries(order.items).map(([key, val]) => {
-                          if (val > 0) {
-                            return (
-                              <span key={key} className="mini-item-tag">
-                                {LAUNDRY_ITEM_LABELS[key]?.icon} {val}
-                              </span>
-                            );
-                          }
-                          return null;
-                        })}
-                      </div>
-                      <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
-                        {order.price && (
-                          <span style={{ color: 'var(--success)', fontWeight: 800, fontSize: '0.85rem' }}>
-                            💰 {order.price} ج
-                          </span>
-                        )}
-                        <span style={{ fontWeight: 800 }}>إجمالي: {totalPcs} قطع</span>
-                      </div>
-                    </div>
-                  </div>
-                );
-              })
-            )}
-          </div>
-        </div>
-
-        {/* Right Side: Active Order detail viewer */}
-        <div>
-          {selectedOrder ? (
-            <div className="order-detail-panel animate-scale">
-              <div className="detail-header">
-                <div className="detail-client-info">
-                  <h2>{selectedOrder.customer_name}</h2>
-                  <p>تاريخ الطلب: {new Date(selectedOrder.created_at).toLocaleString('ar-EG')}</p>
-                </div>
-                
-                {/* Dial / WhatsApp Actions */}
-                <div className="detail-action-buttons">
-                  <a 
-                    href={`tel:${selectedOrder.phone}`}
-                    className="btn-action btn-action-call"
-                  >
-                    <Phone size={16} /> اتصل بالعميل
-                  </a>
-                  <a 
-                    href={getWhatsAppLink(selectedOrder, 'pickup')}
-                    className="btn-action btn-action-whatsapp"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    <MessageSquare size={16} /> تنبيه واتساب (استلام)
-                  </a>
-                </div>
-              </div>
-
-              {/* Items Breakdown list */}
-              <div>
-                <h4 className="detail-section-title">قطع الغسيل المطلوبة</h4>
-                <div className="detail-items-table">
-                  {selectedOrder.items && Object.entries(selectedOrder.items).map(([key, val]) => (
-                    <div key={key} className="detail-item-row" style={{ opacity: val > 0 ? 1 : 0.4 }}>
-                      <div className="detail-item-name">
-                        <span style={{ fontSize: '1.25rem' }}>{LAUNDRY_ITEM_LABELS[key]?.icon}</span>
-                        <span>{LAUNDRY_ITEM_LABELS[key]?.name}</span>
-                      </div>
-                      <span className="detail-item-qty">{val}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Order Price Input Panel */}
-              <div className="detail-status-update" style={{ backgroundColor: 'var(--primary-light)' }}>
-                <h4 className="detail-section-title" style={{ borderBottom: 'none', marginBottom: 0, color: 'var(--primary)' }}>تحديد / تعديل إجمالي سعر الطلب (بالجنيه)</h4>
-                <div style={{ display: 'flex', gap: '0.5rem' }}>
-                  <input 
-                    type="number" 
-                    className="form-input" 
-                    placeholder="أدخل السعر الإجمالي بالجنيه (مثال: 350)"
-                    value={priceInput}
-                    onChange={(e) => setPriceInput(e.target.value)}
-                    style={{ background: 'var(--bg-card)', paddingRight: '1rem' }}
-                  />
-                  <button 
-                    className="btn-status-save"
-                    onClick={() => handleUpdatePrice(selectedOrder.id, priceInput)}
-                  >
-                    حفظ السعر
+        {/* Right Side: Active Order detail viewer (Hide on mobile if no order is selected) */}
+        {(!isMobile || selectedOrder) && (
+          <div>
+            {selectedOrder ? (
+              <div className="order-detail-panel animate-scale">
+                {/* Mobile Back Button */}
+                {isMobile && (
+                  <button className="admin-mobile-back" onClick={() => setSelectedOrder(null)}>
+                    <ChevronRight size={18} /> العودة إلى قائمة الطلبات
                   </button>
-                </div>
-              </div>
-
-              {/* Location details */}
-              <div className="detail-map-card">
-                <h4 className="detail-section-title">الموقع الجغرافي للعميل</h4>
-                {selectedOrder.address_details && (
-                  <div className="detail-address-text">
-                    <strong>تفاصيل العنوان:</strong> {selectedOrder.address_details}
-                  </div>
                 )}
-                
-                <div className="detail-map-wrapper">
-                  <div ref={mapContainerRef} style={{ height: '100%', width: '100%' }}></div>
+
+                <div className="detail-header">
+                  <div className="detail-client-info">
+                    <h2>{selectedOrder.customer_name}</h2>
+                    <p>تاريخ الطلب: {new Date(selectedOrder.created_at).toLocaleString('ar-EG')}</p>
+                  </div>
+                  
+                  {/* Dial / WhatsApp Actions */}
+                  <div className="detail-action-buttons">
+                    <a 
+                      href={`tel:${selectedOrder.phone}`}
+                      className="btn-action btn-action-call"
+                    >
+                      <Phone size={16} /> اتصل بالعميل
+                    </a>
+                    <a 
+                      href={getWhatsAppLink(selectedOrder, 'pickup')}
+                      className="btn-action btn-action-whatsapp"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      <MessageSquare size={16} /> تنبيه واتساب (استلام)
+                    </a>
+                  </div>
                 </div>
 
-                <div className="detail-navigation-row">
-                  <a 
-                    href={`https://www.google.com/maps/search/?api=1&query=${selectedOrder.latitude},${selectedOrder.longitude}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="btn-nav-action btn-nav-google"
-                  >
-                    <MapPin size={16} /> فتح في خرائط جوجل للبدء بالتوجيه
-                    <ExternalLink size={14} style={{ marginRight: 'auto' }} />
-                  </a>
+                {/* Items Breakdown list */}
+                <div>
+                  <h4 className="detail-section-title">قطع الغسيل المطلوبة</h4>
+                  <div className="detail-items-table">
+                    {selectedOrder.items && Object.entries(selectedOrder.items).map(([key, val]) => (
+                      <div key={key} className="detail-item-row" style={{ opacity: val > 0 ? 1 : 0.4 }}>
+                        <div className="detail-item-name">
+                          <span style={{ fontSize: '1.25rem' }}>{LAUNDRY_ITEM_LABELS[key]?.icon}</span>
+                          <span>{LAUNDRY_ITEM_LABELS[key]?.name}</span>
+                        </div>
+                        <span className="detail-item-qty">{val}</span>
+                      </div>
+                    ))}
+                  </div>
                 </div>
-              </div>
 
-              {/* Status Update Dropdown Panel */}
-              <div className="detail-status-update">
-                <h4 className="detail-section-title" style={{ borderBottom: 'none', marginBottom: 0 }}>متابعة حالة الطلب</h4>
-                
-                <div className="status-dropdown-wrapper">
-                  <select 
-                    className="status-select"
-                    value={selectedOrder.status}
-                    onChange={(e) => handleUpdateStatus(selectedOrder.id, e.target.value)}
-                  >
-                    <option value="pending">معلق (بانتظار الاستلام)</option>
-                    <option value="picked_up">تم استلام الملابس بالمغسلة</option>
-                    <option value="in_progress">قيد الغسيل والكي</option>
-                    <option value="ready">جاهز للتسليم</option>
-                    <option value="delivered">تم التوصيل للعميل</option>
-                  </select>
-
-                  {STATUS_LABELS[selectedOrder.status].next && (
+                {/* Order Price Input Panel */}
+                <div className="detail-status-update" style={{ backgroundColor: 'var(--primary-light)' }}>
+                  <h4 className="detail-section-title" style={{ borderBottom: 'none', marginBottom: 0, color: 'var(--primary)' }}>تحديد / تعديل إجمالي سعر الطلب (بالجنيه)</h4>
+                  <div style={{ display: 'flex', gap: '0.5rem' }}>
+                    <input 
+                      type="number" 
+                      className="form-input" 
+                      placeholder="أدخل السعر الإجمالي بالجنيه (مثال: 350)"
+                      value={priceInput}
+                      onChange={(e) => setPriceInput(e.target.value)}
+                      style={{ background: 'var(--bg-card)', paddingRight: '1rem' }}
+                    />
                     <button 
                       className="btn-status-save"
-                      onClick={() => handleUpdateStatus(selectedOrder.id, STATUS_LABELS[selectedOrder.status].next)}
+                      onClick={() => handleUpdatePrice(selectedOrder.id, priceInput)}
                     >
-                      {STATUS_LABELS[selectedOrder.status].nextLabel}
+                      حفظ السعر
                     </button>
+                  </div>
+                </div>
+
+                {/* Location details */}
+                <div className="detail-map-card">
+                  <h4 className="detail-section-title">الموقع الجغرافي للعميل</h4>
+                  {selectedOrder.address_details && (
+                    <div className="detail-address-text">
+                      <strong>تفاصيل العنوان:</strong> {selectedOrder.address_details}
+                    </div>
+                  )}
+                  
+                  <div className="detail-map-wrapper">
+                    <div ref={mapContainerRef} style={{ height: '100%', width: '100%' }}></div>
+                  </div>
+
+                  <div className="detail-navigation-row">
+                    <a 
+                      href={`https://www.google.com/maps/search/?api=1&query=${selectedOrder.latitude},${selectedOrder.longitude}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="btn-nav-action btn-nav-google"
+                    >
+                      <MapPin size={16} /> فتح في خرائط جوجل للبدء بالتوجيه
+                      <ExternalLink size={14} style={{ marginRight: 'auto' }} />
+                    </a>
+                  </div>
+                </div>
+
+                {/* Status Update Dropdown Panel */}
+                <div className="detail-status-update">
+                  <h4 className="detail-section-title" style={{ borderBottom: 'none', marginBottom: 0 }}>متابعة حالة الطلب</h4>
+                  
+                  <div className="status-dropdown-wrapper">
+                    <select 
+                      className="status-select"
+                      value={selectedOrder.status}
+                      onChange={(e) => handleUpdateStatus(selectedOrder.id, e.target.value)}
+                    >
+                      <option value="pending">معلق (بانتظار الاستلام)</option>
+                      <option value="picked_up">تم استلام الملابس بالمغسلة</option>
+                      <option value="in_progress">قيد الغسيل والكي</option>
+                      <option value="ready">جاهز للتسليم</option>
+                      <option value="delivered">تم التوصيل للعميل</option>
+                    </select>
+
+                    {STATUS_LABELS[selectedOrder.status].next && (
+                      <button 
+                        className="btn-status-save"
+                        onClick={() => handleUpdateStatus(selectedOrder.id, STATUS_LABELS[selectedOrder.status].next)}
+                      >
+                        {STATUS_LABELS[selectedOrder.status].nextLabel}
+                      </button>
+                    )}
+                  </div>
+
+                  {selectedOrder.status === 'ready' && (
+                    <a 
+                      href={getWhatsAppLink(selectedOrder, 'ready')}
+                      className="btn-wizard"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={{ 
+                        backgroundColor: '#25d366', 
+                        color: 'white', 
+                        textDecoration: 'none',
+                        fontSize: '0.85rem',
+                        padding: '0.5rem',
+                        borderRadius: 'var(--radius-sm)'
+                      }}
+                    >
+                      <MessageSquare size={16} /> إرسال إشعار واتساب للعميل بجهوزية الغسيل
+                    </a>
                   )}
                 </div>
 
-                {selectedOrder.status === 'ready' && (
-                  <a 
-                    href={getWhatsAppLink(selectedOrder, 'ready')}
-                    className="btn-wizard"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    style={{ 
-                      backgroundColor: '#25d366', 
-                      color: 'white', 
-                      textDecoration: 'none',
-                      fontSize: '0.85rem',
-                      padding: '0.5rem',
-                      borderRadius: 'var(--radius-sm)'
-                    }}
+                {/* Danger Actions: Delete */}
+                <div style={{ borderTop: '1px solid var(--border-color)', paddingTop: '1rem', display: 'flex', justifyContent: 'flex-end' }}>
+                  <button 
+                    className="btn-action" 
+                    onClick={() => handleDeleteOrder(selectedOrder.id)}
+                    style={{ backgroundColor: 'rgba(239, 68, 68, 0.1)', color: 'var(--danger)' }}
                   >
-                    <MessageSquare size={16} /> إرسال إشعار واتساب للعميل بجهوزية الغسيل
-                  </a>
-                )}
-              </div>
+                    <Trash2 size={16} /> حذف الطلب نهائياً
+                  </button>
+                </div>
 
-              {/* Danger Actions: Delete */}
-              <div style={{ borderTop: '1px solid var(--border-color)', paddingTop: '1rem', display: 'flex', justifyContent: 'flex-end' }}>
-                <button 
-                  className="btn-action" 
-                  onClick={() => handleDeleteOrder(selectedOrder.id)}
-                  style={{ backgroundColor: 'rgba(239, 68, 68, 0.1)', color: 'var(--danger)' }}
-                >
-                  <Trash2 size={16} /> حذف الطلب نهائياً
-                </button>
               </div>
-
-            </div>
-          ) : (
-            <div className="order-detail-panel detail-placeholder">
-              <Layers size={48} />
-              <h3>لا يوجد طلب محدد</h3>
-              <p>اختر طلباً من القائمة الجانبية لعرض كامل تفاصيله</p>
-            </div>
-          )}
-        </div>
+            ) : (
+              <div className="order-detail-panel detail-placeholder">
+                <Layers size={48} />
+                <h3>لا يوجد طلب محدد</h3>
+                <p>اختر طلباً من القائمة الجانبية لعرض كامل تفاصيله</p>
+              </div>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );
