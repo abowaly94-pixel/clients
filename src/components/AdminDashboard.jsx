@@ -23,7 +23,7 @@ import L from 'leaflet';
 const ADMIN_PASSCODE = import.meta.env.VITE_ADMIN_PASSCODE || '12345';
 
 const STATUS_LABELS = {
-  pending: { label: 'معلق (بانتظار الاستلام)', color: 'pending', next: 'picked_up', nextLabel: 'تأكيد استلام الملابس' },
+  pending: { label: 'معلق (بانتظار الاستلام)', color: 'pending', next: 'picked_up', nextLabel: 'تأكيد استلام السجاد والبطاطين' },
   picked_up: { label: 'تم الاستلام (بالمغسلة)', color: 'picked_up', next: 'in_progress', nextLabel: 'بدء الغسيل والكي' },
   in_progress: { label: 'قيد الغسيل والكي', color: 'in_progress', next: 'ready', nextLabel: 'تجهيز الطلب للتسليم' },
   ready: { label: 'جاهز للتسليم', color: 'ready', next: 'delivered', nextLabel: 'تأكيد توصيل الطلب للعميل' },
@@ -676,7 +676,7 @@ export default function AdminDashboard() {
                       onChange={(e) => handleUpdateStatus(selectedOrder.id, e.target.value)}
                     >
                       <option value="pending">معلق (بانتظار الاستلام)</option>
-                      <option value="picked_up">تم استلام الملابس بالمغسلة</option>
+                      <option value="picked_up">تم استلام السجاد والبطاطين بالمغسلة</option>
                       <option value="in_progress">قيد الغسيل والكي</option>
                       <option value="ready">جاهز للتسليم</option>
                       <option value="delivered">تم التوصيل للعميل</option>

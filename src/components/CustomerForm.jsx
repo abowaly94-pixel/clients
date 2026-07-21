@@ -574,7 +574,7 @@ export default function CustomerForm() {
             
             <div className="wizard-header">
               <h1>تم استلام طلبك بنجاح!</h1>
-              <p>سيتواصل معك مندوبنا لاستلام الملابس قريباً</p>
+              <p>سيتواصل معك مندوبنا لاستلام السجاد والبطاطين قريباً</p>
             </div>
 
             <div className="success-summary">
